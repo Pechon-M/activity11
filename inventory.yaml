@@ -1,0 +1,10 @@
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  hosts:
+  children:
+    servers:
+      hosts:
+        server1:
+          ansible_hosts: 192.168.56.114
+

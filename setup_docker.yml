@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Docker Install
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Docker start and enable
+      systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Add user Docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes

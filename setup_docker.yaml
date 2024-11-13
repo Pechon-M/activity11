@@ -1,0 +1,49 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Docker Install
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Docker start and enable
+      ansible.builtin.service:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Add user Docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Directory
+      file:
+        path: /home/{{ansible_user}}/files_d
+        state: directory
+
+    - name: Create
+      copy:
+        dest: /home/{{ansible_user}}/files_d/Dockerfile
+        content: |
+          FROM ubuntu 24.04
+
+          RUN apt-get update
+          RUN apt-get install apache2 -y
+          RUN apt-get install mariadb-server -y
+          COPY . /var/www/html
+
+          EXPOSE 80
+
+          CMD ["apache2ctl","-D","FOREGROUND"]
+
+    - name: Build Docker Image
+      docker_image:
+        path: /home/{{ansible_user}}/files_d
+        name: apache_mariadb_image
+        tag: latest
+        state: present
